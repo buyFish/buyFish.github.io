@@ -20,28 +20,6 @@
     firebase.initializeApp(config);
     var database = firebase.database();
 
-    /*function writeData(path, data) {
-        database.ref(path).set(data);
-    }
-
-    function writeGreet() {
-        writeData("greet", "Hello Chiru");
-    }
-
-    function readGreet() {
-        database.ref("greet").on("value", function (snapshot) {
-            console.log(snapshot.val());
-            if (snapshot.val()) {
-                document.getElementById("data").innerText = snapshot.val();
-                //window.location.href = "./chiru.html";
-            }
-            else {
-                alert("no data")
-            }
-
-        })
-    }*/
-
     window.onload = function () {
         var url = document.location.href,
             params = url.split('?')[1].split('&'),
@@ -50,7 +28,6 @@
             tmp = params[i].split('=');
             data[tmp[0]] = tmp[1];
         }
-        //document.getElementById('params').innerHTML = data.e;
         writeClickEvent(data);
     };
 
@@ -97,6 +74,7 @@
 
         }
         else {
+            alert("not valid");
             window.location.href = buyfish_url;
         }
     }
@@ -123,28 +101,7 @@
         });
     }
 
-    function writeSentMail(cid,email,mid,cb) {
-        var sentRef = compaignReference + "/" + cid +"/sent/"+mid ;
-        database.ref(sentRef).once("value", function (emailIdSnapshot) {
-            console.log(emailIdSnapshot.val());
-            if (emailIdSnapshot.val()) {
-                cb(false);
-            }
-            else {
-                database.ref(sentRef).child("email").set(email);
-                database.ref(sentRef).child("ctdon").set(getTimeInSeconds());
-                cb(true);
-            }
-        });
-    }
-   /* writeSentMail(1,"chirukoudi@gmail.com",2,function (isWrite) {
-        if(isWrite){
-            console.log("yes written");
-        }
-        else{
-            console.log("not written");
-        }
-    })*/
+
 
 
 </script>
