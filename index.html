@@ -1,0 +1,152 @@
+<html>
+<body>
+<h1>Hello chiru</h1>
+<p id="data">data here</p>
+<p id="params">params here</p>
+<p id="test">testdata</p>
+<script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
+<script>
+    var buyfish_url = "https://buyfish.in/";
+    var compaignReference = "compaigns";
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyDSCUe4-_q-Qz2guge4XDJz08tXf_0PU0U",
+        authDomain: "ytbdownloader.firebaseapp.com",
+        databaseURL: "https://ytbdownloader.firebaseio.com",
+        projectId: "ytbdownloader",
+        storageBucket: "ytbdownloader.appspot.com",
+        messagingSenderId: "685832939725"
+    };
+    firebase.initializeApp(config);
+    var database = firebase.database();
+
+    /*function writeData(path, data) {
+        database.ref(path).set(data);
+    }
+
+    function writeGreet() {
+        writeData("greet", "Hello Chiru");
+    }
+
+    function readGreet() {
+        database.ref("greet").on("value", function (snapshot) {
+            console.log(snapshot.val());
+            if (snapshot.val()) {
+                document.getElementById("data").innerText = snapshot.val();
+                //window.location.href = "./chiru.html";
+            }
+            else {
+                alert("no data")
+            }
+
+        })
+    }*/
+
+    window.onload = function () {
+        var url = document.location.href,
+            params = url.split('?')[1].split('&'),
+            data = {}, tmp;
+        for (var i = 0, l = params.length; i < l; i++) {
+            tmp = params[i].split('=');
+            data[tmp[0]] = tmp[1];
+        }
+        //document.getElementById('params').innerHTML = data.e;
+        writeClickEvent(data);
+    };
+
+    function writeClickEvent(compaignData) {
+
+        if (compaignData && compaignData.cid && compaignData.ctdon && compaignData.e && compaignData.mid ) {
+            checkSentEmail(compaignData.e,compaignData.mid,compaignData.cid,function (isSentEmail) {
+                if(isSentEmail){
+                    //validations
+                    var clickData = {
+                        "email": compaignData.e,
+                        "ctdon": compaignData.ctdon,
+                        "clickedon": getTimeInSeconds()
+                    };
+                    var clickCountRef = compaignReference + "/" + compaignData.cid + "/clickCount";
+                    var clicksRef = compaignReference + "/" + compaignData.cid + "/clicks/"+compaignData.mid;
+
+                    database.ref(clicksRef).once("value", function (emailIdSnapshot) {
+                        if (emailIdSnapshot.val()) {
+                            alert("already")
+                            //window.location.href = buyfish_url;
+                        }
+                        else {
+                            database.ref(clickCountRef).once("value", function (snapshot) {
+                                if (snapshot.val()) {
+                                    var clCount = snapshot.val() + 1;
+                                    database.ref(clickCountRef).set(clCount);
+                                }
+                                else {
+                                    database.ref(clickCountRef).set(1);
+                                }
+                                database.ref(clicksRef).set(clickData);
+                                window.location.href = buyfish_url;
+                            });
+
+                        }
+                    });
+                }
+                else{
+                    alert("not sent mail")
+                    //window.location.href = buyfish_url;
+                }
+            });
+
+        }
+        else {
+            window.location.href = buyfish_url;
+        }
+    }
+
+    function getTimeInSeconds() {
+        return Math.round(new Date().getTime() / 1000);
+    }
+    
+    function checkSentEmail(email,mid,id,cb) {
+        var sentRef = compaignReference + "/" + id +"/sent/"+mid+"/email" ;
+        database.ref(sentRef).once("value", function (emailIdSnapshot) {
+            console.log(emailIdSnapshot.val());
+            if (emailIdSnapshot.val()) {
+                if(emailIdSnapshot.val() === email){
+                    cb(true);
+                }
+                else{
+                    cb(false);
+                }
+            }
+            else {
+                cb(false);
+            }
+        });
+    }
+
+    function writeSentMail(cid,email,mid,cb) {
+        var sentRef = compaignReference + "/" + cid +"/sent/"+mid ;
+        database.ref(sentRef).once("value", function (emailIdSnapshot) {
+            console.log(emailIdSnapshot.val());
+            if (emailIdSnapshot.val()) {
+                cb(false);
+            }
+            else {
+                database.ref(sentRef).child("email").set(email);
+                database.ref(sentRef).child("ctdon").set(getTimeInSeconds());
+                cb(true);
+            }
+        });
+    }
+   /* writeSentMail(1,"chirukoudi@gmail.com",2,function (isWrite) {
+        if(isWrite){
+            console.log("yes written");
+        }
+        else{
+            console.log("not written");
+        }
+    })*/
+
+
+</script>
+</body>
+</html>
