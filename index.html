@@ -21,6 +21,7 @@
     var database = firebase.database();
 
     window.onload = function () {
+        console.log("loaded");
         var url = document.location.href,
             params = url.split('?')[1].split('&'),
             data = {}, tmp;
